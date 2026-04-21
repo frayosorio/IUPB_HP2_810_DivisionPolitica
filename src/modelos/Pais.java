@@ -9,6 +9,9 @@ public class Pais {
     private String tipoRegion;
     private String codigoAlfa2;
     private String codigoAlfa3;
+    private double latitud;
+    private double longitud;
+    private int zoom;
     private List<Region> regiones; // Puede ser null si el país no tiene regiones
 
     // Getters y Setters
@@ -67,4 +70,29 @@ public class Pais {
     public void setRegiones(List<Region> regiones) {
         this.regiones = regiones;
     }
+
+    public double getLatitud() {
+        return latitud;
+    }
+
+    public void setLatitud(double latitud) {
+        this.latitud = latitud;
+    }
+
+    public double getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(double longitud) {
+        this.longitud = longitud;
+    }
+
+    public int getZoom() {
+        return zoom;
+    }
+
+    public void setZoom(int zoom) {
+        this.zoom = zoom;
+    }
+    
 }

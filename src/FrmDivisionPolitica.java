@@ -11,10 +11,17 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.WindowConstants;
+import javax.swing.event.MouseInputListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.TileFactoryInfo;
 
 import servicios.DivisionPoliticaServicio;
 
@@ -22,7 +29,7 @@ public class FrmDivisionPolitica extends JFrame {
 
     private JTree arbol;
     DefaultMutableTreeNode nodoRaiz;
-    JLabel lblMapa;
+    JXMapViewer visorMapa;
 
     public FrmDivisionPolitica() {
         setSize(600, 400);
@@ -56,9 +63,32 @@ public class FrmDivisionPolitica extends JFrame {
             }
         });
 
-        // Crear
-        lblMapa = new JLabel();
-        JScrollPane spMapa = new JScrollPane(lblMapa);
+        // Crear el visor de mapa
+        visorMapa = new JXMapViewer();
+        JScrollPane spMapa = new JScrollPane(visorMapa);
+
+        // configurar el servicio de mapa
+        TileFactoryInfo info = new TileFactoryInfo(
+                1, 15, 17,
+                256,
+                true, true,
+                "https://tile.openstreetmap.org",
+                "x", "y", "z") {
+
+            @Override
+            public String getTileUrl(int x, int y, int zoom) {
+                int z = 17 - zoom;
+                return this.baseURL + "/" + z + "/" + x + "/" + y + ".png";
+            }
+        };
+        DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+        visorMapa.setTileFactory(tileFactory);
+
+        // Controles del Mapa
+        MouseInputListener mia = new PanMouseInputListener(visorMapa);
+        visorMapa.addMouseListener(mia);
+        visorMapa.addMouseMotionListener(mia);
+        visorMapa.addMouseWheelListener(new ZoomMouseWheelListenerCursor(visorMapa));
 
         // Divisor entre el árbol y el mapa
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, spArbol, spMapa);
@@ -75,7 +105,24 @@ public class FrmDivisionPolitica extends JFrame {
         DivisionPoliticaServicio.mostrar(nodoRaiz);
     }
 
+    private String obtenerPais(DefaultMutableTreeNode nodo) {
+        while (nodo != null) {
+            if (nodo.getParent() == nodoRaiz) { // Si el padre inmediato es la raíz "Paises"
+                return nodo.toString(); // Es un país
+            }
+            nodo = (DefaultMutableTreeNode) nodo.getParent();
+        }
+        return "";
+    }
+
     private void mostrarMapa() {
+        var nodoSeleccionado = (DefaultMutableTreeNode) arbol.getLastSelectedPathComponent();
+        if (nodoSeleccionado != null) {
+            String pais = obtenerPais(nodoSeleccionado);
+            if (!pais.isEmpty()) {
+                DivisionPoliticaServicio.mostrarMapa(visorMapa, pais);
+            }
+        }
 
     }
 
