@@ -82,4 +82,18 @@ public class DivisionPoliticaServicio {
 
     }
 
+    public static void reproducirHimno(String nombrePais) {
+        nombrePais = nombrePais.replace("á", "a")
+                .replace("é", "e")
+                .replace("í", "i")
+                .replace("ó", "o")
+                .replace("ú", "u");
+        String rutaHimno = "src/himnos/" + nombrePais + ".mp3";
+        File archivoHimno = new File(rutaHimno);
+        if (!archivoHimno.exists())
+            return;
+        ReproductorAudio.reproducir(rutaHimno);
+
+    }
+
 }

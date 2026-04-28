@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
@@ -24,6 +23,7 @@ import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 
 import servicios.DivisionPoliticaServicio;
+import servicios.ReproductorAudio;
 
 public class FrmDivisionPolitica extends JFrame {
 
@@ -41,10 +41,8 @@ public class FrmDivisionPolitica extends JFrame {
         JButton btnAgregarCuenta = new JButton();
         btnAgregarCuenta.setIcon(new ImageIcon(getClass().getResource("/iconos/Himno.png")));
         btnAgregarCuenta.setToolTipText("Reproducir Himno");
-        btnAgregarCuenta.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                reproducirHimno();
-            }
+        btnAgregarCuenta.addActionListener(evt -> {
+            reproducirHimno();
         });
         tbDivisionPolitica.add(btnAgregarCuenta);
 
@@ -126,8 +124,21 @@ public class FrmDivisionPolitica extends JFrame {
 
     }
 
-    private void reproducirHimno() {
+    private boolean reproduciendo = false;
 
+    private void reproducirHimno() {
+        if (!reproduciendo) {
+            var nodoSeleccionado = (DefaultMutableTreeNode) arbol.getLastSelectedPathComponent();
+            if (nodoSeleccionado != null) {
+                String pais = obtenerPais(nodoSeleccionado);
+                if (!pais.isEmpty()) {
+                    DivisionPoliticaServicio.reproducirHimno(pais);
+                }
+            }
+        } else {
+            ReproductorAudio.detener();
+        }
+        reproduciendo = !reproduciendo;
     }
 
 }
